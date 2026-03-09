@@ -3,7 +3,7 @@
 //  NightTrackers
 //
 //  Created by Adam Harward on 2/9/26.
-//
+//  Keep this as original so upon duplication for other views
 
 import SwiftUI
 
