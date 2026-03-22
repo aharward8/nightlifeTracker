@@ -6,84 +6,127 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct HomeView: View {
+    let profile: UserProfile
+
     var body: some View {
-        NavigationStack{
-            ZStack {
-                Color.black
-                    .ignoresSafeArea()
-                
-                VStack {
-                    VStack{
-                        ZStack{
-                            Image("App Icon usage")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                            HStack{
-                                Spacer()
-                                NavigationLink(destination: SettingsPage()) {
-                                    Image("Settings Wheel")
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                }
-                            }
+        ZStack {
+            LinearGradient(
+                colors: [Color.black, Color.black, Color.neonPurple.opacity(0.28)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 24) {
+                HStack(alignment: .top) {
+                    HStack(spacing: 16) {
+                        profilePhoto
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Welcome back,")
+                                .font(.headline)
+                                .foregroundStyle(.white.opacity(0.72))
+
+                            Text(profile.firstName)
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+
+                            Text("Ready to map out tonight?")
+                                .foregroundStyle(Color.neonBlue)
                         }
-                        .padding(.horizontal)
-                        }
-                        Text("Welcome back \"UserName\"")
-                            .foregroundColor(.blue)
-                    
-                        Spacer()
-                    
-                    NavigationLink(destination: ContentView()) {
-                        Text("Go To Nearest Bar")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                    Capsule()
-                                        .stroke(Color.neonBlue, lineWidth: 2)
-                                        .shadow(color: .neonBlue, radius: 4)
-                                        .shadow(color: .neonBlue.opacity(0.6), radius: 10)
-                                )
-                            .shadow(color: .neonBlue.opacity(0.8), radius: 5)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
                     }
-                    .padding(.horizontal)
-                    NavigationLink(destination: ContentView()) {
-                        Text("Go To Nearest Bar")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                    Capsule()
-                                        .stroke(Color.neonPink, lineWidth: 2)
-                                        .shadow(color: .neonPink, radius: 4)
-                                        .shadow(color: .neonPink.opacity(0.6), radius: 10)
-                                )
-                            .shadow(color: .neonPink.opacity(0.8), radius: 5)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
-                    }
-                    .padding(.horizontal)
-                    Text("Find Nearest Fast Food")
-                        .padding()
-                        .foregroundColor(.white)
-	
+
                     Spacer()
-                    
+
+                    NavigationLink(destination: SettingsPage(profile: profile)) {
+                        Image("Settings Wheel")
+                            .resizable()
+                            .frame(width: 42, height: 42)
+                            .clipShape(Circle())
+                    }
                 }
+                .padding(.top, 12)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Saved contact")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.68))
+
+                    Text(profile.phoneNumber)
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.white)
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(Color.neonBlue.opacity(0.45), lineWidth: 1)
+                )
+
+                Spacer()
+
+                NavigationLink(destination: ContentView()) {
+                    HomeActionButton(title: "Go To Nearest Bar", accentColor: .neonBlue)
+                }
+
+                NavigationLink(destination: ContentView()) {
+                    HomeActionButton(title: "Find Nearest Fast Food", accentColor: .neonPink)
+                }
+
+                Spacer()
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 28)
         }
     }
-        }
 
+    private var profilePhoto: some View {
+        Group {
+            if let photoData = profile.photoData, let image = UIImage(data: photoData) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image("App Icon usage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+        }
+        .frame(width: 92, height: 92)
+        .clipShape(Circle())
+        .overlay(
+            Circle()
+                .stroke(Color.neonGreen, lineWidth: 2)
+        )
+    }
+}
+
+private struct HomeActionButton: View {
+    let title: String
+    let accentColor: Color
+
+    var body: some View {
+        Text(title)
+            .font(.headline)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(
+                Capsule()
+                    .stroke(accentColor, lineWidth: 2)
+                    .shadow(color: accentColor, radius: 4)
+                    .shadow(color: accentColor.opacity(0.6), radius: 10)
+            )
+            .shadow(color: accentColor.opacity(0.8), radius: 5)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+    }
+}
 
 #Preview {
-    HomeView()
+    HomeView(profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"))
 }
