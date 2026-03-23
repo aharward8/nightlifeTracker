@@ -37,43 +37,66 @@ struct HomeView: View {
                         Text("Welcome back \"UserName\"")
                             .foregroundColor(.blue)
                     
-                        Spacer()
+                    Spacer()
+                    Spacer()
                     
-                    NavigationLink(destination: ContentView()) {
+                    //TODO: need to connect real location and real name locations found
+                    NavigationLink(destination: NavagationView(viewType: "Bar", theme: Color.neonBlue, names: MockData.bars )) {
                         Text("Go To Nearest Bar")
                             .font(.headline)
                             .padding()
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: 100)
                             .background(
                                     Capsule()
-                                        .stroke(Color.neonBlue, lineWidth: 2)
-                                        .shadow(color: .neonBlue, radius: 4)
-                                        .shadow(color: .neonBlue.opacity(0.6), radius: 10)
+                                        .stroke(Color.neonBlue, lineWidth: 10)
+                                        .shadow(color: .neonBlue, radius: 15)
+                                        .shadow(color: .neonBlue.opacity(0.6), radius: 20)
                                 )
                             .shadow(color: .neonBlue.opacity(0.8), radius: 5)
                             .foregroundColor(.white)
                             .clipShape(Capsule())
                     }
+
                     .padding(.horizontal)
-                    NavigationLink(destination: ContentView()) {
-                        Text("Go To Nearest Bar")
+                    Spacer()
+                    
+                    //TODO: need to connect real location and real name locations found
+                    NavigationLink(destination: NavagationView(viewType: "Friends", theme: Color.neonPink, names: MockData.friends )) {
+                        Text("Where Could My Friends Be?")
                             .font(.headline)
                             .padding()
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: 100)
                             .background(
                                     Capsule()
-                                        .stroke(Color.neonPink, lineWidth: 2)
-                                        .shadow(color: .neonPink, radius: 4)
-                                        .shadow(color: .neonPink.opacity(0.6), radius: 10)
+                                        .stroke(Color.neonPink, lineWidth: 10)
+                                        .shadow(color: .neonPink, radius: 15)
+                                        .shadow(color: .neonPink.opacity(0.6), radius: 20)
                                 )
                             .shadow(color: .neonPink.opacity(0.8), radius: 5)
                             .foregroundColor(.white)
                             .clipShape(Capsule())
                     }
+                    
                     .padding(.horizontal)
-                    Text("Find Nearest Fast Food")
-                        .padding()
-                        .foregroundColor(.white)
+                    Spacer()
+                    
+                    //TODO: need to connect real location and real name locations found
+                    NavigationLink(destination: NavagationView(viewType: "Food", theme: Color.neonPurple, names: MockData.food)) {
+                        Text("I'm Starving")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity, minHeight: 100)
+                            .background(
+                                    Capsule()
+                                        .stroke(Color.neonPurple, lineWidth: 10)
+                                        .shadow(color: .neonPurple, radius: 15)
+                                        .shadow(color: .neonPurple.opacity(0.6), radius: 20)
+                                )
+                            .shadow(color: .neonPurple.opacity(0.8), radius: 5)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                    }
+                    .padding(.horizontal)
 	
                     Spacer()
                     
