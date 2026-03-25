@@ -6,107 +6,109 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct HomeView: View {
+    let profile: UserProfile
+
     var body: some View {
-        NavigationStack{
-            ZStack {
-                Color.black
-                    .ignoresSafeArea()
-                
-                VStack {
-                    VStack{
-                        ZStack{
-                            Image("App Icon usage")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                            HStack{
-                                Spacer()
-                                NavigationLink(destination: SettingsPage()) {
-                                    Image("Settings Wheel")
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                }
-                            }
+        ZStack {
+            LinearGradient(
+                colors: [Color.black, Color.black, Color.neonPurple.opacity(0.28)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 24) {
+                HStack(alignment: .top) {
+                    HStack(spacing: 16) {
+                        profilePhoto
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Welcome back,")
+                                .font(.headline)
+                                .foregroundStyle(.white.opacity(0.72))
+
+                            Text(profile.firstName)
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+
+                            Text("Ready to map out tonight?")
+                                .foregroundStyle(Color.neonBlue)
                         }
-                        .padding(.horizontal)
-                        }
-                        Text("Welcome back \"UserName\"")
-                            .foregroundColor(.blue)
-                    
-                    Spacer()
-                    Spacer()
-                    
-                    //TODO: need to connect real location and real name locations found
-                    NavigationLink(destination: NavagationView(viewType: "Bar", theme: Color.neonBlue, names: MockData.bars )) {
-                        Text("Go To Nearest Bar")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity, minHeight: 100)
-                            .background(
-                                    Capsule()
-                                        .stroke(Color.neonBlue, lineWidth: 10)
-                                        .shadow(color: .neonBlue, radius: 15)
-                                        .shadow(color: .neonBlue.opacity(0.6), radius: 20)
-                                )
-                            .shadow(color: .neonBlue.opacity(0.8), radius: 5)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
                     }
 
-                    .padding(.horizontal)
                     Spacer()
-                    
-                    //TODO: need to connect real location and real name locations found
-                    NavigationLink(destination: NavagationView(viewType: "Friends", theme: Color.neonPink, names: MockData.friends )) {
-                        Text("Where Could My Friends Be?")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity, minHeight: 100)
-                            .background(
-                                    Capsule()
-                                        .stroke(Color.neonPink, lineWidth: 10)
-                                        .shadow(color: .neonPink, radius: 15)
-                                        .shadow(color: .neonPink.opacity(0.6), radius: 20)
-                                )
-                            .shadow(color: .neonPink.opacity(0.8), radius: 5)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
+
+                    NavigationLink(destination: SettingsPage(profile: profile)) {
+                        Image("Settings Wheel")
+                            .resizable()
+                            .frame(width: 42, height: 42)
+                            .clipShape(Circle())
                     }
-                    
-                    .padding(.horizontal)
-                    Spacer()
-                    
-                    //TODO: need to connect real location and real name locations found
-                    NavigationLink(destination: NavagationView(viewType: "Food", theme: Color.neonPurple, names: MockData.food)) {
-                        Text("I'm Starving")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity, minHeight: 100)
-                            .background(
-                                    Capsule()
-                                        .stroke(Color.neonPurple, lineWidth: 10)
-                                        .shadow(color: .neonPurple, radius: 15)
-                                        .shadow(color: .neonPurple.opacity(0.6), radius: 20)
-                                )
-                            .shadow(color: .neonPurple.opacity(0.8), radius: 5)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
-                    }
-                    .padding(.horizontal)
-	
-                    Spacer()
-                    
                 }
+                .padding(.top, 12)
+
+                Spacer()
+
+                NavigationLink(destination: ContentView()) {
+                    HomeActionButton(title: "Go To Nearest Bar", accentColor: .neonBlue)
+                }
+
+                NavigationLink(destination: ContentView()) {
+                    HomeActionButton(title: "Find Nearest Fast Food", accentColor: .neonPink)
+                }
+
+                Spacer()
             }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 28)
         }
     }
-        }
 
+    private var profilePhoto: some View {
+        Group {
+            if let photoData = profile.photoData, let image = UIImage(data: photoData) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image("App Icon usage")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+        }
+        .frame(width: 92, height: 92)
+        .clipShape(Circle())
+        .overlay(
+            Circle()
+                .stroke(Color.neonGreen, lineWidth: 2)
+        )
+    }
+}
+
+private struct HomeActionButton: View {
+    let title: String
+    let accentColor: Color
+
+    var body: some View {
+        Text(title)
+            .font(.headline)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(
+                Capsule()
+                    .stroke(accentColor, lineWidth: 2)
+                    .shadow(color: accentColor, radius: 4)
+                    .shadow(color: accentColor.opacity(0.6), radius: 10)
+            )
+            .shadow(color: accentColor.opacity(0.8), radius: 5)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+    }
+}
 
 #Preview {
-    HomeView()
+    HomeView(profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"))
 }

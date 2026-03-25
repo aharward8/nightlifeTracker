@@ -8,114 +8,136 @@
 import SwiftUI
 
 struct SettingsPage: View {
+    let profile: UserProfile
     @State private var showDeleteConfirmation = false
     @State private var showLogoutConfirmation = false
+
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea() // This fills the entire screen
-            VStack {
-                HStack{
-                    Image("Settings Wheel")
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
-                    
-                    Text("Settings")
-                        .foregroundColor(.white)
-                    
-                    Image("Settings Wheel")
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
-                }
-                Spacer()
-                
-                NavigationLink(destination: FavoritesView(favorites: MockData.food + MockData.bars))
-                {
-                    HStack {
-                        Image("Favorites Liked")
-                            .resizable()
-                            .frame(width: 60, height: 60)
+            LinearGradient(
+                colors: [Color.black, Color.black, Color.neonPink.opacity(0.22)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+
+                VStack{
+                    HStack(spacing: 24) {
+                        profileImage
                         
+                        VStack(alignment: .leading, spacing: 16) {
+                            settingsRow(title: "First name", value: profile.firstName)
+                            settingsRow(title: "Last name", value: profile.lastName)
+                            settingsRow(title: "Phone number", value: profile.phoneNumber)
+                        }
+                        .padding(20)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .stroke(Color.neonPink.opacity(0.45), lineWidth: 1)
+                        )
+                        Spacer()
+                    }
+                        Spacer()
+                    
+                    NavigationLink(destination: ContentView()) {
                         Text("Find All Favorites")
                             .font(.headline)
                             .foregroundColor(.white)
-                        
-                        Image("Favorites Liked")
-                            .resizable()
-                            .frame(width: 60, height: 60)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                Capsule()
+                                    .fill(Color.neonBlue)
+                                    .shadow(color: .neonBlue, radius: 10)
+                            )
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        Capsule()
-                            .stroke(Color.neonBlue, lineWidth: 3)
-                            .shadow(color: .neonBlue, radius: 10)
-                            .shadow(color: .neonBlue.opacity(0.6), radius: 15)
-                    )
-                    .padding(.horizontal)
-                }
-                .padding()
-                
-                Button(action: {
-                    showLogoutConfirmation = true
-                }) {
-                    HStack {
+                    Spacer()
+
+                    Button(action: { showLogoutConfirmation = true }) {
                         Text("Log Out")
                             .font(.headline)
                             .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                Capsule()
+                                    .fill(Color.neonPink)
+                                    .shadow(color: .neonPink, radius: 10)
+                            )
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        Capsule()
-                            .stroke(Color.neonPink, lineWidth: 3)
-                            .shadow(color: .neonPink, radius: 10)
-                    )
                     .buttonStyle(.plain)
                     .sheet(isPresented: $showLogoutConfirmation) {
-                        PopUpView(text:"Are you sure you want to log out? This will take you back to the login screen.", title: "Log Out")
+                        PopUpView(text: "Are you sure you want to log out?", title: "Log Out")
                             .presentationDetents([.medium])
-                            .presentationDragIndicator(.visible)
                     }
-                }
-                .padding()
-                
-                
-                Button(action: {
-                    showDeleteConfirmation = true
-                }) {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.white)
-                        
-                        Text("Delete Account")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                    Spacer()
+
+                    Button(action: { showDeleteConfirmation = true }) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                            Text("Delete Account")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            Capsule()
+                                .fill(Color.neonRed)
+                                .shadow(color: Color.neonRed, radius: 10)
+                        )
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        Capsule()
-                            .stroke(Color.neonRed, lineWidth: 3)
-                            .shadow(color: Color.neonRed, radius: 10)
-                    )
+                    .buttonStyle(.plain)
+                    .sheet(isPresented: $showDeleteConfirmation) {
+                        PopUpView(text: "This action cannot be undone.", title: "Delete Account")
+                            .presentationDetents([.medium])
+                    }
+                    Spacer()
                 }
-                .buttonStyle(.plain)
-                .sheet(isPresented: $showDeleteConfirmation) {
-                    PopUpView(text:" This will permanently remove your nightlife history and all saved favorites. This action cannot be undone.", title: "Delete Account")
-                        .presentationDetents([.medium])
-                        .presentationDragIndicator(.visible)
-                }
-                
-                Spacer()
-                
+                .padding(.horizontal)
+        }
+    }
+
+    private var profileImage: some View {
+        Group {
+            if let photoData = profile.photoData, let image = UIImage(data: photoData) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: "person.crop.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(Color.neonPink)
+                    .padding(16)
             }
         }
+        .frame(width: 120, height: 120)
+        .background(Color.white.opacity(0.06))
+        .clipShape(Circle())
+        .overlay(
+            Circle()
+                .stroke(Color.neonPink.opacity(0.65), lineWidth: 2)
+        )
+    }
+
+    private func settingsRow(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.7))
+
+            Text(value)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.white)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
-    SettingsPage()
+    SettingsPage(profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"))
 }
