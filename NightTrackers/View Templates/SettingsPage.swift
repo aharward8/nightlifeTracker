@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct SettingsPage: View {
     let profile: UserProfile
+    @State private var showDeleteConfirmation = false
+    @State private var showLogoutConfirmation = false
 
     var body: some View {
         ZStack {
@@ -20,53 +21,83 @@ struct SettingsPage: View {
             )
             .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 24) {
-                    HStack {
-                        Image("Settings Wheel")
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                            .clipShape(Circle())
 
-                        Text("Settings")
-                            .font(.system(size: 30, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-
+                VStack{
+                    HStack(spacing: 24) {
+                        profileImage
+                        
+                        VStack(alignment: .leading, spacing: 16) {
+                            settingsRow(title: "First name", value: profile.firstName)
+                            settingsRow(title: "Last name", value: profile.lastName)
+                            settingsRow(title: "Phone number", value: profile.phoneNumber)
+                        }
+                        .padding(20)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .stroke(Color.neonPink.opacity(0.45), lineWidth: 1)
+                        )
                         Spacer()
                     }
-
-                    profileImage
-
-                    VStack(alignment: .leading, spacing: 16) {
-                        settingsRow(title: "First name", value: profile.firstName)
-                        settingsRow(title: "Last name", value: profile.lastName)
-                        settingsRow(title: "Phone number", value: profile.phoneNumber)
-                    }
-                    .padding(20)
-                    .background(Color.white.opacity(0.06))
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(Color.neonPink.opacity(0.45), lineWidth: 1)
-                    )
-
-                    Text("Profile details are stored locally in the NightTrackers app database.")
-                        .font(.footnote)
-                        .foregroundStyle(.white.opacity(0.72))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
+                        Spacer()
+                    
                     NavigationLink(destination: ContentView()) {
                         Text("Find All Favorites")
                             .font(.headline)
+                            .foregroundColor(.white)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color.neonBlue)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
+                            .background(
+                                Capsule()
+                                    .fill(Color.neonBlue)
+                                    .shadow(color: .neonBlue, radius: 10)
+                            )
                     }
+                    Spacer()
+
+                    Button(action: { showLogoutConfirmation = true }) {
+                        Text("Log Out")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                Capsule()
+                                    .fill(Color.neonPink)
+                                    .shadow(color: .neonPink, radius: 10)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .sheet(isPresented: $showLogoutConfirmation) {
+                        PopUpView(text: "Are you sure you want to log out?", title: "Log Out")
+                            .presentationDetents([.medium])
+                    }
+                    Spacer()
+
+                    Button(action: { showDeleteConfirmation = true }) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                            Text("Delete Account")
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            Capsule()
+                                .fill(Color.neonRed)
+                                .shadow(color: Color.neonRed, radius: 10)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .sheet(isPresented: $showDeleteConfirmation) {
+                        PopUpView(text: "This action cannot be undone.", title: "Delete Account")
+                            .presentationDetents([.medium])
+                    }
+                    Spacer()
                 }
-                .padding(24)
-            }
+                .padding(.horizontal)
         }
     }
 

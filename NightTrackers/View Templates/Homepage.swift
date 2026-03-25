@@ -50,24 +50,6 @@ struct HomeView: View {
                 }
                 .padding(.top, 12)
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Saved contact")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.68))
-
-                    Text(profile.phoneNumber)
-                        .font(.title3.weight(.medium))
-                        .foregroundStyle(.white)
-                }
-                .padding(20)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(Color.neonBlue.opacity(0.45), lineWidth: 1)
-                )
-
                 Spacer()
 
                 NavigationLink(destination: ContentView()) {
