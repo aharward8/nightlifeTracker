@@ -10,6 +10,9 @@ import SwiftUI
 
 @main
 struct NightTrackersApp: App {
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     private let sharedModelContainer: ModelContainer = {
         do {
             return try ModelContainer(
