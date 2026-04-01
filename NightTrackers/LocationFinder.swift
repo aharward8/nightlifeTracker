@@ -3,14 +3,26 @@
 //  NightTrackers
 //
 //  Created by Adam Harward on 3/16/26.
+//  Updated by Aiden Hemmer on 4/1/26.
 //
 
 import SwiftUI
 import MapKit
 import CoreLocation
 
+// Struct to store venue info along with calculated distance
+struct VenueLocation: Identifiable {
+    let id = UUID()
+    let name: String
+    let lat: Double
+    let long: Double
+    let category: String
+    let distanceMiles: Double
+}
+
 class VenueSearcher: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var nearbyBars: [(name: String, lat: Double, long: Double)] = []
+    // Updated to store full venue info instead of just tuples
+    @Published var nearbyVenues: [VenueLocation] = []
     @Published var userLocation: CLLocation?
     
     private let locationManager = CLLocationManager()
@@ -26,33 +38,58 @@ class VenueSearcher: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
-        // Only search if we haven't found bars yet or if the user moved significantly
-        if nearbyBars.isEmpty {
+        // Only search if we haven't found venues yet (runs on app open)
+        if nearbyVenues.isEmpty {
             self.userLocation = location
-            searchForBars(near: location)
+            searchForVenues(category: "Bar")
         }
     }
     
-    func searchForBars(near location: CLLocation) {
+    // Generic search function for different categories (Bars, Food, etc.)
+    func searchForVenues(category: String) {
+        guard let location = userLocation else { return }
+        
         let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = "Bar"
-        request.region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 5000, longitudinalMeters: 5000)
+        request.naturalLanguageQuery = category
+        request.region = MKCoordinateRegion(
+            center: location.coordinate,
+            latitudinalMeters: 5000,
+            longitudinalMeters: 5000
+        )
         
         let search = MKLocalSearch(request: request)
         search.start { response, error in
             guard let response = response else { return }
             
-            // Map the Apple results into your Tuple format
-            let results = response.mapItems.prefix(10).map { item in
-                (
-                    name: item.name ?? "Unknown Bar",
-                    lat: item.placemark.coordinate.latitude,
-                    long: item.placemark.coordinate.longitude
+            // Map the Apple results and calculate distance for each venue
+            let results: [VenueLocation] = response.mapItems.compactMap { item in
+                let venueName = item.name ?? "Unknown Venue"
+                let venueLat = item.placemark.coordinate.latitude
+                let venueLong = item.placemark.coordinate.longitude
+                
+                // Create CLLocation for distance calculation
+                let venueLocation = CLLocation(latitude: venueLat, longitude: venueLong)
+                
+                // Calculate straight-line distance (meters -> miles)
+                let distanceMeters = location.distance(from: venueLocation)
+                let distanceMiles = ((distanceMeters / 1609.34) * 100).rounded() / 100
+                
+                return VenueLocation(
+                    name: venueName,
+                    lat: venueLat,
+                    long: venueLong,
+                    category: category,
+                    distanceMiles: distanceMiles
                 )
             }
             
+            // Sort venues by closest distance and take top 10
+            let sortedResults = results
+                .sorted { $0.distanceMiles < $1.distanceMiles }
+                .prefix(10)
+            
             DispatchQueue.main.async {
-                self.nearbyBars = Array(results)
+                self.nearbyVenues = Array(sortedResults)
             }
         }
     }
