@@ -1,5 +1,6 @@
 import CoreLocation
-database import Firestore
+import FirebaseAuth
+import FirebaseFirestore
 
 class LocationService: NSObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
@@ -12,21 +13,17 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         locationManager.requestWhenInUseAuthorization()
     }
 
-    // Start tracking user location
     func startTracking() {
         locationManager.startUpdatingLocation()
     }
 
-    // Stop tracking user location
     func stopTracking() {
         locationManager.stopUpdatingLocation()
     }
 
-    // CLLocationManagerDelegate method
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
         userLocation = location
-        // Update location in Firestore
         updateLocationInFirestore(location: location)
     }
 
@@ -39,27 +36,27 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         db.collection("users").document("\(Auth.auth().currentUser?.uid ?? "unknown")").setData(userLocationData, merge: true)
     }
 
-    // Fetch nearby venues by category
-    func fetchNearbyVenues(category: String, completion: @escaping ([Venue]) -> Void) {
+    func fetchNearbyVenues(category: String, completion: @escaping ([VenueLocation]) -> Void) {
         guard let location = userLocation else { return }
-        let latitude = location.coordinate.latitude
-        let longitude = location.coordinate.longitude
 
         db.collection("venues").whereField("category", isEqualTo: category)
             .getDocuments { (snapshot, error) in
-                var venues: [Venue] = []
+                var venues: [VenueLocation] = []
                 if let documents = snapshot?.documents {
                     for document in documents {
                         let data = document.data()
-                        let venue = Venue(data: data)
-                        venues.append(venue)
+                        if let name = data["name"] as? String,
+                           let lat = data["latitude"] as? Double,
+                           let long = data["longitude"] as? Double {
+                            let venue = VenueLocation(name: name, lat: lat, long: long, category: category)
+                            venues.append(venue)
+                        }
                     }
                 }
                 completion(venues)
             }
     }
 
-    // Save search history
     func saveSearchHistory(query: String) {
         let searchHistoryData: [String: Any] = [
             "query": query,
@@ -68,7 +65,6 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         db.collection("users").document("\(Auth.auth().currentUser?.uid ?? "unknown")").collection("searchHistory").addDocument(data: searchHistoryData)
     }
 
-    // Manage favorite venues
     func addFavorite(venueId: String) {
         db.collection("users").document("\(Auth.auth().currentUser?.uid ?? "unknown")").collection("favorites").document(venueId).setData([:])
     }

@@ -1,9 +1,5 @@
-//
 //  RootView.swift
 //  NightTrackers
-//
-//  Created by Codex on 3/22/26.
-//
 
 import SwiftData
 import SwiftUI
@@ -12,13 +8,18 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
 
+    // One shared LocationManager for the whole app
+    @StateObject private var locationManager = LocationManager()
+
     var body: some View {
-        NavigationStack {
-            Group {
-                if let profile = profiles.first {
-                    HomeView(profile: profile)
-                } else {
-                    RegistrationView(store: SwiftDataUserProfileStore(modelContext: modelContext))
+        LocationPermissionGate(locationManager: locationManager) {
+            NavigationStack {
+                Group {
+                    if let profile = profiles.first {
+                        HomeView(profile: profile, locationManager: locationManager)
+                    } else {
+                        RegistrationView(store: SwiftDataUserProfileStore(modelContext: modelContext))
+                    }
                 }
             }
         }

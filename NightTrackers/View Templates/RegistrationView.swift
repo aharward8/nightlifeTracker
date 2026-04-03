@@ -9,6 +9,7 @@ import PhotosUI
 import SwiftUI
 import UIKit
 
+
 struct RegistrationView: View {
     let store: any UserProfileStore
 

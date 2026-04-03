@@ -13,7 +13,7 @@ struct NavagationView: View {
     let viewType: String
     let theme: Color
     let names: [Place]
-    @StateObject var locationManager = LocationManager()
+    @ObservedObject var locationManager: LocationManager  // ← changed from @StateObject
     @StateObject var searcher = VenueSearcher()
     @State private var currentIndex = 0
     
@@ -31,7 +31,6 @@ struct NavagationView: View {
     }
     
     var body: some View {
-        // 1. Capture the user's location once so the code below is much cleaner to read
         let userLat = locationManager.userLocation?.coordinate.latitude ?? MockData.currentLocation.lat
         let userLong = locationManager.userLocation?.coordinate.longitude ?? MockData.currentLocation.long
         let currentPlace = names[currentIndex]
@@ -86,7 +85,6 @@ struct NavagationView: View {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 300))
                         .foregroundColor(.neonBlue)
-                        // 2. Uses our clean variables instead of the massive inline fallback
                         .rotationEffect(.degrees(
                             calculateBearing(from: (lat: userLat, long: userLong),
                                              to: (lat: currentPlace.location.lat, long: currentPlace.location.long))
@@ -96,7 +94,6 @@ struct NavagationView: View {
                             openInMaps(latitude: currentPlace.location.lat, longitude: currentPlace.location.long, name: currentPlace.name)
                         }
                     
-                    // 3. Calculate distance and display it directly below the arrow
                     let distance = currentPlace.distanceInFeet(from: (lat: userLat, long: userLong))
                     Text(formatDistance(distance))
                         .font(.title2)
@@ -135,7 +132,6 @@ func calculateBearing(from: (lat: Double, long: Double), to: (lat: Double, long:
     return radians * 180 / .pi
 }
 
-// 4. Smart formatting: Converts to miles if the distance is over 5,280 feet
 func formatDistance(_ feet: Double) -> String {
     if feet >= 5280 {
         let miles = feet / 5280
@@ -146,8 +142,5 @@ func formatDistance(_ feet: Double) -> String {
 }
 
 #Preview {
-    // Replaced .neonPurple with .neonBlue to match your arrow (or change it to whatever your theme requires!)
-    NavagationView(viewType: "Food",
-                   theme: .blue,
-                   names: MockData.food)
+    NavagationView(viewType: "Food", theme: .blue, names: MockData.food, locationManager: LocationManager())
 }

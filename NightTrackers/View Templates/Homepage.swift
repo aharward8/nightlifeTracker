@@ -1,15 +1,11 @@
-//
-//  ContentView.swift
+//  Homepage.swift
 //  NightTrackers
-//
-//  Created by Adam Harward on 2/9/26.
-//
 
 import SwiftUI
-import UIKit
 
 struct HomeView: View {
     let profile: UserProfile
+    @ObservedObject var locationManager: LocationManager  // ← receive it from RootView
 
     var body: some View {
         ZStack {
@@ -52,11 +48,23 @@ struct HomeView: View {
 
                 Spacer()
 
-                NavigationLink(destination: ContentView()) {
+                // ✅ NOW WIRED — goes to bar navigation with real location
+                NavigationLink(destination: NavagationView(
+                    viewType: "Bar",
+                    theme: .neonBlue,
+                    names: MockData.bars,
+                    locationManager: locationManager
+                )) {
                     HomeActionButton(title: "Go To Nearest Bar", accentColor: .neonBlue)
                 }
 
-                NavigationLink(destination: ContentView()) {
+                // ✅ NOW WIRED — goes to food navigation with real location
+                NavigationLink(destination: NavagationView(
+                    viewType: "Food",
+                    theme: .neonPink,
+                    names: MockData.food,
+                    locationManager: locationManager
+                )) {
                     HomeActionButton(title: "Find Nearest Fast Food", accentColor: .neonPink)
                 }
 
@@ -81,10 +89,7 @@ struct HomeView: View {
         }
         .frame(width: 92, height: 92)
         .clipShape(Circle())
-        .overlay(
-            Circle()
-                .stroke(Color.neonGreen, lineWidth: 2)
-        )
+        .overlay(Circle().stroke(Color.neonGreen, lineWidth: 2))
     }
 }
 
@@ -110,5 +115,8 @@ private struct HomeActionButton: View {
 }
 
 #Preview {
-    HomeView(profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"))
+    HomeView(
+        profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"),
+        locationManager: LocationManager()
+    )
 }

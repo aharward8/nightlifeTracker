@@ -10,15 +10,6 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-// Struct to store venue info along with calculated distance
-struct VenueLocation: Identifiable {
-    let id = UUID()
-    let name: String
-    let lat: Double
-    let long: Double
-    let category: String
-    let distanceMiles: Double
-}
 
 class VenueSearcher: NSObject, ObservableObject, CLLocationManagerDelegate {
     // Updated to store full venue info instead of just tuples

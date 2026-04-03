@@ -1,0 +1,10 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+.DS_Store
+
+# Firebase - contains private API keys, never commit this
+GoogleService-Info.plist
+
+# Swift Package Manager
+.build/

@@ -1,18 +1,14 @@
 //
 //  NightTrackersApp.swift
 //  NightTrackers
-//
-//  Created by Adam Harward on 2/9/26.
-//
 
 import SwiftData
 import SwiftUI
 
 @main
 struct NightTrackersApp: App {
-
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     private let sharedModelContainer: ModelContainer = {
         do {
             return try ModelContainer(

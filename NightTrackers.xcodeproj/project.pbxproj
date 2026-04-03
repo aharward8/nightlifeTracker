@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B98155E82F8023A300518F8A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B98155E72F8023A300518F8A /* FirebaseAuth */; };
+		B98155EA2F8023A300518F8A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B98155E92F8023A300518F8A /* FirebaseFirestore */; };
+		B981567B2F805B7B00518F8A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B981567A2F805B7B00518F8A /* FirebaseCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CC1423312F3A9E580061FD4F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B98155E82F8023A300518F8A /* FirebaseAuth in Frameworks */,
+				B981567B2F805B7B00518F8A /* FirebaseCore in Frameworks */,
+				B98155EA2F8023A300518F8A /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +81,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B98156792F805B7B00518F8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		CC1423162F3A9E560061FD4F = {
 			isa = PBXGroup;
 			children = (
 				CC1423212F3A9E560061FD4F /* NightTrackers */,
 				CC1423332F3A9E580061FD4F /* NightTrackersTests */,
 				CC14233D2F3A9E580061FD4F /* NightTrackersUITests */,
+				B98156792F805B7B00518F8A /* Frameworks */,
 				CC1423202F3A9E560061FD4F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +129,9 @@
 			);
 			name = NightTrackers;
 			packageProductDependencies = (
+				B98155E72F8023A300518F8A /* FirebaseAuth */,
+				B98155E92F8023A300518F8A /* FirebaseFirestore */,
+				B981567A2F805B7B00518F8A /* FirebaseCore */,
 			);
 			productName = NightTrackers;
 			productReference = CC14231F2F3A9E560061FD4F /* NightTrackers.app */;
@@ -195,6 +215,9 @@
 			);
 			mainGroup = CC1423162F3A9E560061FD4F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B98155E62F8023A300518F8A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CC1423202F3A9E560061FD4F /* Products */;
 			projectDirPath = "";
@@ -394,6 +417,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"NightTrackers/Assets\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "NightTrackers uses your location to find nearby bars and restaurants.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -431,6 +455,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"NightTrackers/Assets\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "NightTrackers uses your location to find nearby bars and restaurants.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -583,6 +608,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B98155E62F8023A300518F8A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B98155E72F8023A300518F8A /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B98155E62F8023A300518F8A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		B98155E92F8023A300518F8A /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B98155E62F8023A300518F8A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		B981567A2F805B7B00518F8A /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B98155E62F8023A300518F8A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CC1423172F3A9E560061FD4F /* Project object */;
 }
