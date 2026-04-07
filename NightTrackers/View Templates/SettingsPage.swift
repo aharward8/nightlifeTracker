@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SettingsPage: View {
     let profile: UserProfile
+    let onLogout: () async throws -> Void
+    let onDeleteProfile: () async throws -> Void
     @State private var showDeleteConfirmation = false
     @State private var showLogoutConfirmation = false
 
@@ -42,7 +44,8 @@ struct SettingsPage: View {
                     }
                         Spacer()
                     
-                    NavigationLink(destination: ContentView()) {
+                    //TODO: Need a data for favorites
+                    NavigationLink(destination: FavoritesView()) {
                         Text("Find All Favorites")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -70,7 +73,12 @@ struct SettingsPage: View {
                     }
                     .buttonStyle(.plain)
                     .sheet(isPresented: $showLogoutConfirmation) {
-                        PopUpView(text: "Are you sure you want to log out?", title: "Log Out")
+                        PopUpView(
+                            text: "Are you sure you want to log out?",
+                            title: "Log Out",
+                            buttonColor: .neonPink,
+                            action: onLogout
+                        )
                             .presentationDetents([.medium])
                     }
                     Spacer()
@@ -92,7 +100,12 @@ struct SettingsPage: View {
                     }
                     .buttonStyle(.plain)
                     .sheet(isPresented: $showDeleteConfirmation) {
-                        PopUpView(text: "This action cannot be undone.", title: "Delete Account")
+                        PopUpView(
+                            text: "This will permanently remove your local profile and saved favorites. This action cannot be undone.",
+                            title: "Delete Account",
+                            buttonColor: .neonRed,
+                            action: onDeleteProfile
+                        )
                             .presentationDetents([.medium])
                     }
                     Spacer()
@@ -139,5 +152,10 @@ struct SettingsPage: View {
 }
 
 #Preview {
-    SettingsPage(profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"))
+    SettingsPage(
+        profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"),
+        onLogout: {},
+        onDeleteProfile: {}
+    )
+        .environmentObject(FavoritesManager())
 }

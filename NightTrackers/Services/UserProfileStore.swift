@@ -81,6 +81,7 @@ protocol UserProfileStore {
     func fetchPrimaryProfile() throws -> UserProfile?
     @discardableResult
     func save(_ draft: RegistrationDraft) throws -> UserProfile
+    func deletePrimaryProfile() throws
 }
 
 @MainActor
@@ -121,5 +122,14 @@ struct SwiftDataUserProfileStore: UserProfileStore {
         modelContext.insert(profile)
         try modelContext.save()
         return profile
+    }
+
+    func deletePrimaryProfile() throws {
+        guard let existingProfile = try fetchPrimaryProfile() else {
+            return
+        }
+
+        modelContext.delete(existingProfile)
+        try modelContext.save()
     }
 }

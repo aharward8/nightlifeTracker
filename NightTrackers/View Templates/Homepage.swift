@@ -5,7 +5,9 @@ import SwiftUI
 
 struct HomeView: View {
     let profile: UserProfile
-    @ObservedObject var locationManager: LocationManager  // ← receive it from RootView
+    @ObservedObject var locationManager: LocationManager
+    let onLogout: () async throws -> Void
+    let onDeleteProfile: () async throws -> Void
 
     var body: some View {
         ZStack {
@@ -37,7 +39,11 @@ struct HomeView: View {
 
                     Spacer()
 
-                    NavigationLink(destination: SettingsPage(profile: profile)) {
+                    NavigationLink(destination: SettingsPage(
+                        profile: profile,
+                        onLogout: onLogout,
+                        onDeleteProfile: onDeleteProfile
+                    )) {
                         Image("Settings Wheel")
                             .resizable()
                             .frame(width: 42, height: 42)
@@ -48,7 +54,6 @@ struct HomeView: View {
 
                 Spacer()
 
-                // ✅ NOW WIRED — goes to bar navigation with real location
                 NavigationLink(destination: NavagationView(
                     viewType: "Bar",
                     theme: .neonBlue,
@@ -57,7 +62,6 @@ struct HomeView: View {
                     HomeActionButton(title: "Go To Nearest Bar", accentColor: .neonBlue)
                 }
 
-                // ✅ NOW WIRED — goes to food navigation with real location
                 NavigationLink(destination: NavagationView(
                     viewType: "Food",
                     theme: .neonPink,
@@ -112,9 +116,9 @@ private struct HomeActionButton: View {
     }
 }
 
-#Preview {
-    HomeView(
-        profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"),
-        locationManager: LocationManager()
-    )
-}
+//#Preview {
+//    HomeView(
+//        profile: UserProfile(firstName: "Taylor", lastName: "North", phoneNumber: "5551234567"),
+//        locationManager: LocationManager()
+//    )
+//}

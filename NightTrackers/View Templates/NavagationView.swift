@@ -14,8 +14,10 @@ struct NavagationView: View {
     let theme: Color
     @ObservedObject var locationManager: LocationManager
 
+    @EnvironmentObject private var favoritesManager: FavoritesManager
     @StateObject private var searcher = VenueSearcher()
     @State private var currentIndex = 0
+    @State private var favoriteErrorMessage: String?
 
     private var screenTitle: String {
         switch viewType {
@@ -99,6 +101,7 @@ struct NavagationView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
+
                     Text("\(currentIndex + 1) of \(searcher.nearbyVenues.count)")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.65))
@@ -125,7 +128,7 @@ struct NavagationView: View {
 
             Spacer()
 
-            VStack(spacing: 20) {
+            VStack(spacing: 24) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 300))
                     .foregroundColor(theme)
@@ -143,10 +146,40 @@ struct NavagationView: View {
                         openInMaps(latitude: venue.lat, longitude: venue.long, name: venue.name)
                     }
 
-                Text(formatDistance(venue.distanceMiles * 5_280))
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white.opacity(0.9))
+                HStack {
+                    Color.clear
+                        .frame(width: 44, height: 44)
+
+                    Spacer()
+
+                    Text(formatDistance(venue.distanceMiles * 5_280))
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.9))
+
+                    Spacer()
+
+                    Button(action: {
+                        toggleFavorite(for: venue)
+                    }) {
+                        Image(
+                            favoritesManager.isFavorite(placeName: venue.name)
+                                ? "Favorites Liked"
+                                : "Unliked"
+                        )
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                    }
+                    .frame(width: 44, height: 44)
+                }
+
+                if let favoriteErrorMessage {
+                    Text(favoriteErrorMessage)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
             }
 
             Spacer()
@@ -205,6 +238,53 @@ struct NavagationView: View {
         currentIndex = 0
     }
 
+    private func toggleFavorite(for venue: VenueLocation) {
+        favoriteErrorMessage = nil
+
+        Task {
+            if let favorite = favoritesManager.favorite(named: venue.name) {
+                favoritesManager.remove(locationName: venue.name)
+
+                guard let remoteID = favorite.remoteID else {
+                    return
+                }
+
+                do {
+                    try await FirestoreService.shared.removeFavorite(documentID: remoteID)
+                } catch {
+                    FirestoreService.shared.logFavoriteError(error, action: "remove")
+                    favoritesManager.upsert(
+                        locationName: favorite.locationName,
+                        lat: favorite.lat,
+                        long: favorite.long,
+                        remoteID: favorite.remoteID
+                    )
+                    favoriteErrorMessage = FirestoreService.shared.favoriteErrorMessage(for: error, action: "removed")
+                }
+            } else {
+                favoritesManager.upsert(locationName: venue.name, lat: venue.lat, long: venue.long)
+
+                do {
+                    let remoteFavorite = try await FirestoreService.shared.addFavorite(
+                        locationName: venue.name,
+                        lat: venue.lat,
+                        long: venue.long
+                    )
+                    favoritesManager.upsert(
+                        locationName: remoteFavorite.locationName,
+                        lat: remoteFavorite.lat,
+                        long: remoteFavorite.long,
+                        remoteID: remoteFavorite.id
+                    )
+                } catch {
+                    FirestoreService.shared.logFavoriteError(error, action: "save")
+                    favoritesManager.remove(locationName: venue.name)
+                    favoriteErrorMessage = FirestoreService.shared.favoriteErrorMessage(for: error, action: "saved")
+                }
+            }
+        }
+    }
+
     private func searchTaskID(for location: CLLocation) -> String {
         let latitude = String(format: "%.4f", location.coordinate.latitude)
         let longitude = String(format: "%.4f", location.coordinate.longitude)
@@ -233,7 +313,6 @@ func openInMaps(latitude: Double, longitude: Double, name: String) {
     let placemark = MKPlacemark(coordinate: coordinates)
     let mapItem = MKMapItem(placemark: placemark)
     mapItem.name = name
-
     mapItem.openInMaps(
         launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
     )
@@ -263,5 +342,10 @@ func formatDistance(_ feet: Double) -> String {
 }
 
 #Preview {
-    NavagationView(viewType: "Food", theme: .blue, locationManager: LocationManager())
+    NavagationView(
+        viewType: "Food",
+        theme: .blue,
+        locationManager: LocationManager()
+    )
+    .environmentObject(FavoritesManager())
 }

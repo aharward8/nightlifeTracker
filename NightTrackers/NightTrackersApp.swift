@@ -7,8 +7,8 @@ import SwiftUI
 
 @main
 struct NightTrackersApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject var favoritesManager = FavoritesManager()
     private let sharedModelContainer: ModelContainer = {
         do {
             return try ModelContainer(
@@ -23,6 +23,7 @@ struct NightTrackersApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environmentObject(favoritesManager)
         }
         .modelContainer(sharedModelContainer)
     }
