@@ -52,7 +52,6 @@ struct HomeView: View {
                 NavigationLink(destination: NavagationView(
                     viewType: "Bar",
                     theme: .neonBlue,
-                    names: MockData.bars,
                     locationManager: locationManager
                 )) {
                     HomeActionButton(title: "Go To Nearest Bar", accentColor: .neonBlue)
@@ -62,7 +61,6 @@ struct HomeView: View {
                 NavigationLink(destination: NavagationView(
                     viewType: "Food",
                     theme: .neonPink,
-                    names: MockData.food,
                     locationManager: locationManager
                 )) {
                     HomeActionButton(title: "Find Nearest Fast Food", accentColor: .neonPink)
