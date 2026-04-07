@@ -1,3 +1,7 @@
+//
+//  VenueMapView.swift
+//  NightTrackers
+
 import SwiftUI
 import MapKit
 
@@ -5,8 +9,8 @@ struct VenueMapView: View {
     let venues: [VenueLocation]
     @State private var position: MapCameraPosition = .automatic
     @State private var selectedVenue: VenueLocation?
-    @Environment(\"\dismiss\") var dismiss
-    
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         ZStack {
             Map(position: $position, selection: $selectedVenue) {
@@ -18,26 +22,26 @@ struct VenueMapView: View {
             }
             .mapStyle(.standard)
             .ignoresSafeArea()
-            
+
             VStack {
                 HStack {
                     Button(action: { dismiss() }) {
-                        Image(systemName: \"xmark.circle.fill\")
+                        Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 28))
                             .foregroundColor(.white)
                             .padding(12)
                             .background(Color.black.opacity(0.6))
                             .clipShape(Circle())
                     }
-                    
+
                     Spacer()
-                    
+
                     Button(action: {
                         if !venues.isEmpty {
                             position = .automatic
                         }
                     }) {
-                        Image(systemName: \"location.circle.fill\")
+                        Image(systemName: "location.circle.fill")
                             .font(.system(size: 28))
                             .foregroundColor(.neonBlue)
                             .padding(12)
@@ -46,21 +50,21 @@ struct VenueMapView: View {
                     }
                 }
                 .padding(16)
-                
+
                 Spacer()
-                
+
                 if let selectedVenue = selectedVenue {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(selectedVenue.name)
                             .font(.headline)
                             .foregroundColor(.white)
-                        
+
                         HStack(spacing: 16) {
-                            Label(\"\(selectedVenue.distanceMiles) mi\", systemImage: \"location.fill\")
+                            Label("\(selectedVenue.distanceMiles) mi", systemImage: "location.fill")
                                 .font(.caption)
                                 .foregroundColor(.neonBlue)
-                            
-                            Label(selectedVenue.category, systemImage: \"tag.fill\")
+
+                            Label(selectedVenue.category, systemImage: "tag.fill")
                                 .font(.caption)
                                 .foregroundColor(.neonPink)
                         }
@@ -74,16 +78,16 @@ struct VenueMapView: View {
             }
         }
     }
-    
+
     private func colorForCategory(_ category: String) -> Color {
         switch category.lowercased() {
-        case \"bar\":
+        case "bar":
             return .neonBlue
-        case \"restaurant\":
+        case "restaurant":
             return .neonGreen
-        case \"club\":
+        case "club":
             return .neonPink
-        case \"fast food\":
+        case "fast food":
             return .orange
         default:
             return .neonBlue
@@ -93,6 +97,6 @@ struct VenueMapView: View {
 
 #Preview {
     VenueMapView(venues: [
-        VenueLocation(name: \"Sample Bar\", lat: 38.2975, long: -84.8733, category: \"Bar\", distanceMiles: 0.5)
+        VenueLocation(name: "Sample Bar", lat: 38.2975, long: -84.8733, category: "Bar", distanceMiles: 0.5)
     ])
 }

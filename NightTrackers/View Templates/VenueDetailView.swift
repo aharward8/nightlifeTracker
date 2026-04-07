@@ -1,57 +1,41 @@
+//
+//  VenueDetailView.swift
+//  NightTrackers
+
 import SwiftUI
 import MapKit
 
 struct VenueDetailView: View {
-    var venue: Venue // Assuming Venue is a model containing venue information
-    @State private var isFavorite: Bool = false // For saving as favorite
+    var venue: VenueLocation
 
     var body: some View {
-        ScrollView {
-            VStack {
-                Map(coordinateRegion: .constant(MKCoordinateRegion(center: venue.location.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)), 
-                    interactionModes: [])
-                    .frame(height: 300)
-                    .cornerRadius(10)
-                
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Map(position: .constant(.region(MKCoordinateRegion(
+                    center: CLLocationCoordinate2D(latitude: venue.lat, longitude: venue.long),
+                    latitudinalMeters: 500,
+                    longitudinalMeters: 500
+                ))))
+                .frame(height: 300)
+                .cornerRadius(10)
+
                 Text(venue.name)
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                
-                Text(venue.address)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                Text("Distance: \(venue.distance) miles")
+                    .foregroundColor(.white)
+
+                Text(venue.category)
                     .font(.subheadline)
                     .foregroundColor(.gray)
 
-                Text("Category: \(venue.category)")
+                Text("\(venue.distanceMiles, specifier: "%.2f") miles away")
                     .font(.subheadline)
                     .foregroundColor(.gray)
-
-                Button(action: {
-                    isFavorite.toggle()
-                }) {
-                    Text(isFavorite ? "Remove from Favorites" : "Save as Favorite")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(isFavorite ? Color.red : Color.blue)
-                        .cornerRadius(10)
-                }
-                .padding()
             }
             .padding()
         }
         .navigationBarTitle("Venue Details", displayMode: .inline)
     }
-}
-
-// Dummy Venue model for demonstration
-struct Venue {
-    var name: String
-    var address: String
-    var distance: String
-    var category: String
-    var location: CLLocation // Assuming location contains coordinate info
 }
