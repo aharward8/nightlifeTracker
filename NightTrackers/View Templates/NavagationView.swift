@@ -18,6 +18,7 @@ struct NavagationView: View {
     @StateObject private var searcher = VenueSearcher()
     @State private var currentIndex = 0
     @State private var favoriteErrorMessage: String?
+    @State private var displayedArrowAngle: Double = 0
 
     private var screenTitle: String {
         switch viewType {
@@ -42,8 +43,12 @@ struct NavagationView: View {
 
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea()
+            LinearGradient(
+                colors: [Color.black, Color.black, Color.neonBlue.opacity(0.2)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
 
             if let userLocation = locationManager.userLocation {
                 content(for: userLocation)
@@ -132,18 +137,21 @@ struct NavagationView: View {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 300))
                     .foregroundColor(theme)
-                    .rotationEffect(.degrees(
-                        calculateBearing(
-                            from: (
-                                lat: userLocation.coordinate.latitude,
-                                long: userLocation.coordinate.longitude
-                            ),
-                            to: (lat: venue.lat, long: venue.long)
-                        )
-                    ))
-                    .animation(.spring(), value: currentIndex)
+                    .rotationEffect(.degrees(displayedArrowAngle))
                     .onTapGesture {
                         openInMaps(latitude: venue.lat, longitude: venue.long, name: venue.name)
+                    }
+                    .onAppear {
+                        syncDisplayedArrowAngle(userLocation: userLocation, venue: venue, animated: false)
+                    }
+                    .onChange(of: locationManager.headingDegrees) { _, _ in
+                        syncDisplayedArrowAngle(userLocation: userLocation, venue: venue)
+                    }
+                    .onChange(of: venueKey(for: venue)) { _, _ in
+                        syncDisplayedArrowAngle(userLocation: userLocation, venue: venue)
+                    }
+                    .onChange(of: liveLocationKey(for: userLocation)) { _, _ in
+                        syncDisplayedArrowAngle(userLocation: userLocation, venue: venue)
                     }
 
                 HStack {
@@ -152,7 +160,7 @@ struct NavagationView: View {
 
                     Spacer()
 
-                    Text(formatDistance(venue.distanceMiles * 5_280))
+                    Text(formatDistance(liveDistanceFeet(from: userLocation, to: venue)))
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white.opacity(0.9))
@@ -231,11 +239,22 @@ struct NavagationView: View {
     }
 
     private func reloadVenues(near userLocation: CLLocation) async {
+        let selectedVenueKey = currentVenue.map(venueKey(for:))
+        let previousIndex = currentIndex
+
         await searcher.searchForVenues(
             category: viewType,
             near: userLocation.coordinate
         )
-        currentIndex = 0
+
+        if let selectedVenueKey,
+           let updatedIndex = searcher.nearbyVenues.firstIndex(where: { venueKey(for: $0) == selectedVenueKey }) {
+            currentIndex = updatedIndex
+        } else if searcher.nearbyVenues.indices.contains(previousIndex) {
+            currentIndex = previousIndex
+        } else {
+            currentIndex = 0
+        }
     }
 
     private func toggleFavorite(for venue: VenueLocation) {
@@ -285,6 +304,51 @@ struct NavagationView: View {
         }
     }
 
+    private func headingAdjustedBearing(
+        from: (lat: Double, long: Double),
+        to: (lat: Double, long: Double)
+    ) -> Double {
+        let bearingToVenue = calculateBearing(from: from, to: to)
+        return signedNormalizedDegrees(bearingToVenue - locationManager.headingDegrees)
+    }
+
+    private func liveDistanceFeet(from userLocation: CLLocation, to venue: VenueLocation) -> Double {
+        let venueLocation = CLLocation(latitude: venue.lat, longitude: venue.long)
+        let distanceMeters = userLocation.distance(from: venueLocation)
+        return distanceMeters * 3.28084
+    }
+
+    private func venueKey(for venue: VenueLocation) -> String {
+        "\(venue.name.lowercased())-\(venue.lat)-\(venue.long)"
+    }
+
+    private func liveLocationKey(for location: CLLocation) -> String {
+        "\(location.coordinate.latitude)-\(location.coordinate.longitude)"
+    }
+
+    private func syncDisplayedArrowAngle(
+        userLocation: CLLocation,
+        venue: VenueLocation,
+        animated: Bool = true
+    ) {
+        let targetAngle = headingAdjustedBearing(
+            from: (
+                lat: userLocation.coordinate.latitude,
+                long: userLocation.coordinate.longitude
+            ),
+            to: (lat: venue.lat, long: venue.long)
+        )
+        let updatedAngle = displayedArrowAngle + shortestAngularDelta(from: displayedArrowAngle, to: targetAngle)
+
+        if animated {
+            withAnimation(.linear(duration: 0.15)) {
+                displayedArrowAngle = updatedAngle
+            }
+        } else {
+            displayedArrowAngle = updatedAngle
+        }
+    }
+
     private func searchTaskID(for location: CLLocation) -> String {
         let latitude = String(format: "%.4f", location.coordinate.latitude)
         let longitude = String(format: "%.4f", location.coordinate.longitude)
@@ -330,6 +394,20 @@ func calculateBearing(from: (lat: Double, long: Double), to: (lat: Double, long:
 
     let radians = atan2(y, x)
     return radians * 180 / .pi
+}
+
+func signedNormalizedDegrees(_ degrees: Double) -> Double {
+    var normalized = degrees.truncatingRemainder(dividingBy: 360)
+    if normalized > 180 {
+        normalized -= 360
+    } else if normalized <= -180 {
+        normalized += 360
+    }
+    return normalized
+}
+
+func shortestAngularDelta(from current: Double, to target: Double) -> Double {
+    signedNormalizedDegrees(target - current)
 }
 
 func formatDistance(_ feet: Double) -> String {
