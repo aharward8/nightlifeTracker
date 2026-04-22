@@ -70,6 +70,14 @@ struct HomeView: View {
                     HomeActionButton(title: "Find Nearest Fast Food", accentColor: .neonPink)
                 }
 
+                NavigationLink(destination: NavagationView(
+                    viewType: "Casino",
+                    theme: .neonGreen,
+                    locationManager: locationManager
+                )) {
+                    HomeActionButton(title: "Find Nearest Casino", accentColor: .neonGreen)
+                }
+
                 Spacer()
             }
             .padding(.horizontal, 24)

@@ -8,3 +8,5 @@ GoogleService-Info.plist
 
 # Swift Package Manager
 .build/
+*.xcuserstate
+xcuserdata/

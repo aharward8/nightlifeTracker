@@ -26,6 +26,8 @@ struct NavagationView: View {
             return "Food Search"
         case "Bar":
             return "Bar Search"
+        case "Casino":
+            return "Casino Search"
         case "Friends":
             return "Friends"
         default:
