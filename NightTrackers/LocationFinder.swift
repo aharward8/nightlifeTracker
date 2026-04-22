@@ -3,7 +3,7 @@
 //  NightTrackers
 //
 //  Created by Adam Harward on 3/16/26.
-//  Updated by Aiden Hemmer on 4/1/26.
+//  Updated by Aiden Hemmer on 4/21/26.
 //
 
 import CoreLocation
@@ -79,6 +79,8 @@ final class VenueSearcher: ObservableObject {
             return "fast food"
         case "bar":
             return "bar"
+        case "casino":
+            return "casino"
         default:
             return category
         }
@@ -90,6 +92,8 @@ final class VenueSearcher: ObservableObject {
             return "Fast Food"
         case "bar":
             return "Bar"
+        case "casino":
+            return "Casino"
         default:
             return category
         }
